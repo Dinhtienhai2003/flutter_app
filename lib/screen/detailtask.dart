@@ -122,9 +122,11 @@ class DetailTask extends StatelessWidget {
                 SizedBox(height: 20),
                 Text(
                     style: TextStyle(fontSize: 25),
-                    "Kết thúc : " +
-                        DateFormat('dd-MM-yyy HH:mm:ss')
-                            .format(updatedTask.end)),
+                    updatedTask.end == null
+                        ? "Kết thúc"
+                        : "Kết thúc " +
+                            DateFormat('dd-MM-yyy HH:mm:ss')
+                                .format(updatedTask.end!)),
                 SizedBox(height: 20),
                 Text(style: TextStyle(fontSize: 25), "Anh hoan thanh"), //
               ],

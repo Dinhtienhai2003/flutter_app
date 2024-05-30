@@ -10,7 +10,46 @@ class TaskProvider extends ChangeNotifier {
   final localLogs = LocalstorageLog();
   List<Task> listTask = [];
 
+  List<Task> listTaskOverDue = [];
+
   List<String> logs = [];
+
+  List<Task> getListTaskOverDue() {
+    return listTaskOverDue;
+  }
+
+  void updateOverdueTasks() {
+    CheckIsShow();
+    final now = DateTime.now();
+
+    for (Task task in listTask) {
+      if (task.end!.isBefore(now)) {
+        if (listTaskOverDue.contains(task)) {
+          continue;
+        } else {
+          listTaskOverDue.add(task);
+        }
+      }
+    }
+
+    notifyListeners();
+  }
+
+  void Setisshow(Task taskTmp) {
+    for (Task task in listTask) {
+      if (task.id == taskTmp.id) {
+        task.isShow = false;
+
+        notifyListeners();
+        break;
+      }
+    }
+  }
+
+  void AddTaskOverDue(Task task) {
+    listTaskOverDue.add(task);
+    notifyListeners();
+  }
 
   void ClearLog() {
     localLogs.clearData();
@@ -18,9 +57,15 @@ class TaskProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Stream<DateTime> get timeStream {
+    return Stream.periodic(Duration(seconds: 1), (_) => DateTime.now())
+        .asBroadcastStream();
+  }
+
   TaskProvider() {
     localTasks.getData().then((tasks) {
       listTask = tasks;
+      updateOverdueTasks();
       if (listTask.isNotEmpty) {
         notifyListeners();
       }
@@ -32,13 +77,25 @@ class TaskProvider extends ChangeNotifier {
         notifyListeners();
       }
     });
+    timeStream.listen((now) {
+      updateOverdueTasks();
+    });
   }
 
   List<String> GetLogs() {
     return logs.reversed.toList();
   }
 
+  void CheckIsShow() {
+    for (Task task in listTask) {
+      if (listTaskOverDue.contains(task)) {
+        task.isShow = false;
+      }
+    }
+  }
+
   List<Task> GetListTask() {
+    CheckIsShow();
     return listTask;
   }
 
@@ -103,12 +160,13 @@ class TaskProvider extends ChangeNotifier {
   }
 
   void AddTask(int uuTien, String ghiChu, DateTime begin, DateTime end) async {
-    final task = Task(uuTien: uuTien, ghiChu: ghiChu, begin: begin, end: end);
+    final task = Task(uuTien: uuTien, ghiChu: ghiChu, end: end);
     listTask.add(task);
     CapNhatDuLieu();
 
     logs.add("Nhiệm vụ ${ghiChu} đã được thêm lúc ${LayGioHienTai()}");
     CapNhatDuLieuLog();
+    updateOverdueTasks();
   }
 
   void UpdateTask(
@@ -123,7 +181,7 @@ class TaskProvider extends ChangeNotifier {
         CapNhatDuLieuLog();
 
         CapNhatDuLieu();
-
+        updateOverdueTasks();
         return;
       }
     }

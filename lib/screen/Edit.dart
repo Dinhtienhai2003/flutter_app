@@ -143,18 +143,15 @@ class _EditState extends State<Edit> {
     if (value == null || value.isEmpty) {
       return 'Vui lòng nhập thời gian bắt đầu.';
     }
-    if (widget._beginDate.isBefore(DateTime.now())) {
-      return 'Thời gian begin la ${widget._beginDate} bắt đầu không thể nhỏ hơn thời gian hiện tại.';
-    }
-    return null;
+    // if (widget._beginDate.isBefore(DateTime.now())) {
+    //   return 'Thời gian begin la ${widget._beginDate} bắt đầu không thể nhỏ hơn thời gian hiện tại.';
+    // }
+    // return null;
   }
 
   String? _validateEnd(String? value) {
     if (value == null || value.isEmpty) {
       return 'Vui lòng nhập thời gian kết thúc.';
-    }
-    if (widget._endDate.isBefore(widget._beginDate)) {
-      return 'Thời gian end là ${widget._endDate} kết thúc  không thể nhỏ hơn thời gian bắt đầu.';
     }
     return null;
   }
@@ -162,111 +159,98 @@ class _EditState extends State<Edit> {
   @override
   Widget build(BuildContext context) {
     _controllerUuTien.text =
-        widget._Task == null ? "" : widget._Task!.id.toString();
+        widget._Task == null ? "" : widget._Task!.uuTien.toString();
     _controllerGhiChu.text =
         widget._Task == null ? "" : widget._Task!.ghiChu.toString();
     _controllerBegin.text = widget._Task == null
         ? DateFormat('dd-MM-yyy HH:mm:ss').format(DateTime.now())
-        : DateFormat('dd-MM-yyy HH:mm:ss').format(widget._Task!.begin);
+        : DateFormat('dd-MM-yyy HH:mm:ss').format(widget._Task!.begin!);
     _controllerEnd.text = widget._Task == null
         ? DateFormat('dd-MM-yyy HH:mm:ss').format(DateTime.now())
-        : DateFormat('dd-MM-yyy HH:mm:ss').format(widget._Task!.end);
+        : DateFormat('dd-MM-yyy HH:mm:ss').format(widget._Task!.end!);
     return Container(
       padding: EdgeInsets.all(20),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Text(widget._title ?? "Edit"),
-            SizedBox(
-              height: 20,
-            ),
-            TextFormField(
-              controller: _controllerUuTien,
-              decoration: InputDecoration(
-                labelText: 'Ưu tiên',
+      child: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(widget._title ?? "Edit"),
+              SizedBox(
+                height: 20,
               ),
-              validator: _validateUuTien,
-            ),
-            TextFormField(
-              controller: _controllerGhiChu,
-              decoration: InputDecoration(
-                labelText: 'Ghi chú',
-              ),
-              validator: _validateGhiChu,
-            ),
-            TextFormField(
-              readOnly: true,
-              controller: _controllerBegin,
-              decoration: InputDecoration(
-                labelText: 'Bắt đầu',
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.calendar_today),
-                  onPressed: () {
-                    _selectDateTime(_controllerBegin);
-                  },
+              TextFormField(
+                controller: _controllerUuTien,
+                decoration: InputDecoration(
+                  labelText: 'Ưu tiên',
                 ),
+                validator: _validateUuTien,
               ),
-              validator: _validateBegin,
-            ),
-            TextFormField(
-              readOnly: true,
-              controller: _controllerEnd,
-              decoration: InputDecoration(
-                labelText: 'Kết thúc',
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.calendar_today),
-                  onPressed: () {
-                    _selectDateTime(_controllerEnd);
-                  },
+              TextFormField(
+                controller: _controllerGhiChu,
+                decoration: InputDecoration(
+                  labelText: 'Ghi chú',
                 ),
+                validator: _validateGhiChu,
               ),
-              validator: _validateEnd,
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            ElevatedButton(
-                onPressed: () {
-                  if (widget._mode == 0) {
-                    print("dang nhan them");
-                    _showConfirmation(
-                        context,
-                        'Thêm',
-                        "Thông tin Task đã được thêm thành công!",
-                        "Bạn muốn thêm thông tin này ?", () {
+              TextFormField(
+                readOnly: true,
+                controller: _controllerEnd,
+                decoration: InputDecoration(
+                  labelText: 'Kết thúc',
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.calendar_today),
+                    onPressed: () {
+                      _selectDateTime(_controllerEnd);
+                    },
+                  ),
+                ),
+                validator: _validateEnd,
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              ElevatedButton(
+                  onPressed: () {
+                    if (widget._mode == 0) {
                       if (_formKey.currentState!.validate()) {
-                        context.read<TaskProvider>().AddTask(
-                            int.parse(_controllerUuTien.text),
-                            _controllerGhiChu.text,
-                            widget._beginDate,
-                            widget._endDate);
+                        _showConfirmation(
+                            context,
+                            'Thêm',
+                            "Thông tin Task đã được thêm thành công!",
+                            "Bạn muốn thêm thông tin này ?", () {
+                          context.read<TaskProvider>().AddTask(
+                              int.parse(_controllerUuTien.text),
+                              _controllerGhiChu.text,
+                              widget._beginDate,
+                              widget._endDate);
 
-                        Navigator.pop(context);
+                          Navigator.pop(context);
+                        });
                       }
-                    });
-                  } else {
-                    _showConfirmation(
-                        context,
-                        'Sửa',
-                        "Thông tin Task đã được sửa thành công!",
-                        "Bạn muốn lưu lại thông tin này ?", () {
+                    } else {
                       if (_formKey.currentState!.validate()) {
-                        context.read<TaskProvider>().UpdateTask(
-                            widget._Task!.id,
-                            int.parse(_controllerUuTien.text),
-                            _controllerGhiChu.text,
-                            widget._beginDate,
-                            widget._endDate);
+                        _showConfirmation(
+                            context,
+                            'Sửa',
+                            "Thông tin Task đã được sửa thành công!",
+                            "Bạn muốn lưu lại thông tin này ?", () {
+                          context.read<TaskProvider>().UpdateTask(
+                              widget._Task!.id,
+                              int.parse(_controllerUuTien.text),
+                              _controllerGhiChu.text,
+                              widget._beginDate,
+                              widget._endDate);
 
-                        Navigator.pop(context);
+                          Navigator.pop(context);
+                        });
                       }
-                    });
-                  }
-                },
-                child: Text("Lưu"))
-          ],
+                    }
+                  },
+                  child: Text("Lưu"))
+            ],
+          ),
         ),
       ),
     );

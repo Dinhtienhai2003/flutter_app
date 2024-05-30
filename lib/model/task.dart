@@ -6,40 +6,42 @@ class Task {
   String id = count.toString();
   int uuTien;
   String ghiChu;
-  DateTime begin;
-  DateTime end;
+  DateTime? begin = DateTime.now();
+  DateTime? end = null;
 
   //0 : đang chờ đợi
   //1: đã hoàn thành
   //2: trễ hạn
   bool? status = false;
   dynamic? imgHoanThanh;
+  bool? isShow = true;
   Task({
     required this.uuTien,
     required this.ghiChu,
-    required this.begin,
-    required this.end,
+    this.end,
     this.status,
     this.imgHoanThanh,
+    this.isShow,
   }) {
+    this.isShow = true;
     count++;
   }
 
   Task copyWith({
     int? uuTien,
     String? ghiChu,
-    DateTime? begin,
     DateTime? end,
     bool? status,
     dynamic? imgHoanThanh,
+    bool? isShow,
   }) {
     return Task(
       uuTien: uuTien ?? this.uuTien,
       ghiChu: ghiChu ?? this.ghiChu,
-      begin: begin ?? this.begin,
       end: end ?? this.end,
       status: status ?? this.status,
       imgHoanThanh: imgHoanThanh ?? this.imgHoanThanh,
+      isShow: isShow ?? this.isShow,
     );
   }
 
@@ -47,10 +49,10 @@ class Task {
     return <String, dynamic>{
       'uuTien': uuTien,
       'ghiChu': ghiChu,
-      'begin': begin.millisecondsSinceEpoch,
-      'end': end.millisecondsSinceEpoch,
+      'end': end?.millisecondsSinceEpoch,
       'status': status,
       'imgHoanThanh': imgHoanThanh,
+      'isShow': isShow,
     };
   }
 
@@ -58,11 +60,13 @@ class Task {
     return Task(
       uuTien: map['uuTien'] as int,
       ghiChu: map['ghiChu'] as String,
-      begin: DateTime.fromMillisecondsSinceEpoch(map['begin'] as int),
-      end: DateTime.fromMillisecondsSinceEpoch(map['end'] as int),
+      end: map['end'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['end'] as int)
+          : null,
       status: map['status'] != null ? map['status'] as bool : null,
       imgHoanThanh:
           map['imgHoanThanh'] != null ? map['imgHoanThanh'] as dynamic : null,
+      isShow: map['isShow'] != null ? map['isShow'] as bool : null,
     );
   }
 
@@ -73,7 +77,7 @@ class Task {
 
   @override
   String toString() {
-    return 'Task(uuTien: $uuTien, ghiChu: $ghiChu, begin: $begin, end: $end, status: $status, imgHoanThanh: $imgHoanThanh)';
+    return 'Task(uuTien: $uuTien, ghiChu: $ghiChu, end: $end, status: $status, imgHoanThanh: $imgHoanThanh, isShow: $isShow)';
   }
 
   @override
@@ -82,19 +86,19 @@ class Task {
 
     return other.uuTien == uuTien &&
         other.ghiChu == ghiChu &&
-        other.begin == begin &&
         other.end == end &&
         other.status == status &&
-        other.imgHoanThanh == imgHoanThanh;
+        other.imgHoanThanh == imgHoanThanh &&
+        other.isShow == isShow;
   }
 
   @override
   int get hashCode {
     return uuTien.hashCode ^
         ghiChu.hashCode ^
-        begin.hashCode ^
         end.hashCode ^
         status.hashCode ^
-        imgHoanThanh.hashCode;
+        imgHoanThanh.hashCode ^
+        isShow.hashCode;
   }
 }
