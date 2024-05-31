@@ -7,10 +7,10 @@ import '../model/task.dart';
 class Edit extends StatefulWidget {
   Task? _Task;
   late DateTime _beginDate = DateTime.now();
-
-  late DateTime _endDate = DateTime.now();
+  late DateTime? _endDate = _Task?.end;
   int? _mode;
   String? _title;
+
   Edit(Task? Task, int mode) {
     _Task = Task;
     _mode = mode;
@@ -36,13 +36,42 @@ class Edit extends StatefulWidget {
 
 class _EditState extends State<Edit> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _controllerUuTien = TextEditingController();
-  final TextEditingController _controllerGhiChu = TextEditingController();
-  final TextEditingController _controllerBegin = TextEditingController();
-  final TextEditingController _controllerEnd = TextEditingController();
+  int _uuTien = 1;
+  String _ghiChu = '';
 
+  @override
   void initState() {
     super.initState();
+    if (widget._Task != null) {
+      _uuTien = widget._Task!.uuTien;
+      _ghiChu = widget._Task!.ghiChu;
+      widget._beginDate = widget._Task!.begin!;
+      widget._endDate = widget._Task?.end != null ? widget._Task!.end! : null;
+    }
+  }
+
+  void _onUuTienChanged(String value) {
+    setState(() {
+      _uuTien = int.parse(value);
+    });
+  }
+
+  void _onGhiChuChanged(String value) {
+    setState(() {
+      _ghiChu = value;
+    });
+  }
+
+  void _onBeginDateTimeChanged(DateTime dateTime) {
+    setState(() {
+      widget._beginDate = dateTime;
+    });
+  }
+
+  void _onEndDateTimeChanged(DateTime dateTime) {
+    setState(() {
+      widget._endDate = dateTime;
+    });
   }
 
   Future<void> _showConfirmation(
@@ -54,8 +83,7 @@ class _EditState extends State<Edit> {
   ) async {
     return showDialog<void>(
       context: context,
-      barrierDismissible:
-          false, // Người dùng phải chọn một hành động trước khi có thể thoát hộp thoại.
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(title),
@@ -64,20 +92,18 @@ class _EditState extends State<Edit> {
             TextButton(
               child: Text('Hủy'),
               onPressed: () {
-                Navigator.of(context)
-                    .pop(); // Đóng hộp thoại mà không thực hiện hành động xóa
+                Navigator.of(context).pop();
               },
             ),
             TextButton(
               child: Text('Lưu'),
               onPressed: () {
                 deleteFunction();
-                Navigator.of(context)
-                    .pop(); // Đóng hộp thoại sau khi thực hiện hành động xóa
+                Navigator.of(context).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(Content),
-                    duration: Duration(seconds: 2), // Thời gian hiển thị
+                    duration: Duration(seconds: 2),
                   ),
                 );
               },
@@ -88,7 +114,10 @@ class _EditState extends State<Edit> {
     );
   }
 
-  Future<void> _selectDateTime(TextEditingController controller) async {
+  Future<void> _selectDateTime(
+    BuildContext context,
+    Function(DateTime) onDateTimeChanged,
+  ) async {
     final DateTime? date = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -108,66 +137,13 @@ class _EditState extends State<Edit> {
           time.hour,
           time.minute,
         );
-        controller.text =
-            DateFormat('dd-MM-yyy HH:mm:ss').format(finalDateTime);
-        if (controller == _controllerBegin) {
-          widget._beginDate = finalDateTime;
-        } else if (controller == _controllerEnd) {
-          widget._endDate = finalDateTime;
-        }
+        onDateTimeChanged(finalDateTime);
       }
     }
   }
 
-  String? _validateUuTien(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Vui lòng nhập mức độ ưu tiên.';
-    }
-    // Kiểm tra xem giá trị có phải là số hay không
-    if (double.tryParse(value) == null) {
-      return 'Vui lòng nhập một số.';
-    }
-    // Thêm các điều kiện validate khác nếu cần
-    return null;
-  }
-
-  String? _validateGhiChu(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Vui lòng nhập nội dung';
-    }
-    // Thêm các điều kiện validate khác nếu cần
-    return null;
-  }
-
-  String? _validateBegin(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Vui lòng nhập thời gian bắt đầu.';
-    }
-    // if (widget._beginDate.isBefore(DateTime.now())) {
-    //   return 'Thời gian begin la ${widget._beginDate} bắt đầu không thể nhỏ hơn thời gian hiện tại.';
-    // }
-    // return null;
-  }
-
-  String? _validateEnd(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Vui lòng nhập thời gian kết thúc.';
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
-    _controllerUuTien.text =
-        widget._Task == null ? "" : widget._Task!.uuTien.toString();
-    _controllerGhiChu.text =
-        widget._Task == null ? "" : widget._Task!.ghiChu.toString();
-    _controllerBegin.text = widget._Task == null
-        ? DateFormat('dd-MM-yyy HH:mm:ss').format(DateTime.now())
-        : DateFormat('dd-MM-yyy HH:mm:ss').format(widget._Task!.begin!);
-    _controllerEnd.text = widget._Task == null
-        ? DateFormat('dd-MM-yyy HH:mm:ss').format(DateTime.now())
-        : DateFormat('dd-MM-yyy HH:mm:ss').format(widget._Task!.end!);
     return Container(
       padding: EdgeInsets.all(20),
       child: SingleChildScrollView(
@@ -177,78 +153,74 @@ class _EditState extends State<Edit> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text(widget._title ?? "Edit"),
-              SizedBox(
-                height: 20,
-              ),
+              SizedBox(height: 20),
               TextFormField(
-                controller: _controllerUuTien,
+                initialValue: _uuTien.toString(),
+                onChanged: _onUuTienChanged,
                 decoration: InputDecoration(
                   labelText: 'Ưu tiên',
                 ),
-                validator: _validateUuTien,
               ),
               TextFormField(
-                controller: _controllerGhiChu,
+                initialValue: _ghiChu,
+                onChanged: _onGhiChuChanged,
                 decoration: InputDecoration(
                   labelText: 'Ghi chú',
                 ),
-                validator: _validateGhiChu,
               ),
               TextFormField(
                 readOnly: true,
-                controller: _controllerEnd,
+                controller: TextEditingController(
+                  text: widget._endDate == null
+                      ? ""
+                      : DateFormat('dd-MM-yyyy HH:mm:ss')
+                          .format(widget._endDate!),
+                ),
                 decoration: InputDecoration(
                   labelText: 'Kết thúc',
                   suffixIcon: IconButton(
                     icon: Icon(Icons.calendar_today),
                     onPressed: () {
-                      _selectDateTime(_controllerEnd);
+                      _selectDateTime(context, _onEndDateTimeChanged);
                     },
                   ),
                 ),
-                validator: _validateEnd,
               ),
-              SizedBox(
-                height: 20,
-              ),
+              SizedBox(height: 20),
               ElevatedButton(
-                  onPressed: () {
-                    if (widget._mode == 0) {
-                      if (_formKey.currentState!.validate()) {
-                        _showConfirmation(
-                            context,
-                            'Thêm',
-                            "Thông tin Task đã được thêm thành công!",
-                            "Bạn muốn thêm thông tin này ?", () {
-                          context.read<TaskProvider>().AddTask(
-                              int.parse(_controllerUuTien.text),
-                              _controllerGhiChu.text,
-                              widget._beginDate,
-                              widget._endDate);
-
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    WidgetsBinding.instance!.addPostFrameCallback((_) {
+                      _showConfirmation(
+                        context,
+                        widget._mode == 0 ? 'Thêm' : 'Sửa',
+                        "Thông tin Task đã được ${widget._mode == 0 ? 'thêm' : 'sửa'} thành công!",
+                        "Bạn muốn ${widget._mode == 0 ? 'thêm' : 'lưu lại'} thông tin này ?",
+                        () {
+                          if (widget._mode == 0) {
+                            context.read<TaskProvider>().AddTask(
+                                  _uuTien,
+                                  _ghiChu,
+                                  widget._beginDate,
+                                  widget._endDate,
+                                );
+                          } else {
+                            context.read<TaskProvider>().UpdateTask(
+                                  widget._Task!.id,
+                                  _uuTien,
+                                  _ghiChu,
+                                  widget._beginDate,
+                                  widget._endDate,
+                                );
+                          }
                           Navigator.pop(context);
-                        });
-                      }
-                    } else {
-                      if (_formKey.currentState!.validate()) {
-                        _showConfirmation(
-                            context,
-                            'Sửa',
-                            "Thông tin Task đã được sửa thành công!",
-                            "Bạn muốn lưu lại thông tin này ?", () {
-                          context.read<TaskProvider>().UpdateTask(
-                              widget._Task!.id,
-                              int.parse(_controllerUuTien.text),
-                              _controllerGhiChu.text,
-                              widget._beginDate,
-                              widget._endDate);
-
-                          Navigator.pop(context);
-                        });
-                      }
-                    }
-                  },
-                  child: Text("Lưu"))
+                        },
+                      );
+                    });
+                  }
+                },
+                child: Text('Lưu'),
+              )
             ],
           ),
         ),

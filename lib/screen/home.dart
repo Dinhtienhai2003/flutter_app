@@ -3,6 +3,7 @@ import 'package:ontap_sharedprefences/model/task.dart';
 import 'package:ontap_sharedprefences/screen/drawer.dart';
 import 'package:provider/provider.dart';
 import '../provider/setting.dart';
+import '../provider/statustask.dart';
 import '../provider/task.dart';
 import 'Edit.dart';
 import 'detailtask.dart';
@@ -88,8 +89,11 @@ class Home extends StatelessWidget {
                 children: [
                   Text(
                     "Nhiệm vụ quá hạn",
-                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                  ),
+                    style: TextStyle(
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red),
+                  )
                 ],
               ),
               StreamBuilder<DateTime>(
@@ -102,75 +106,84 @@ class Home extends StatelessWidget {
                           child: Column(
                             children: [
                               Expanded(
-                                child: ListView.builder(
-                                  itemCount:
-                                      taskprovider.getListTaskOverDue().length,
-                                  itemBuilder: (context, index) {
-                                    final task = taskprovider
-                                        .getListTaskOverDue()[index];
-                                    return Card(
-                                      child: ListTile(
-                                        leading: Checkbox(
-                                          checkColor: Colors.blue,
-                                          activeColor: Colors.white,
-                                          value:
-                                              taskprovider.GetStatus(task.id),
-                                          onChanged: (bool? value) {
-                                            taskprovider.SetStatus(
-                                                task.id, value!);
-                                          },
-                                        ),
-                                        title: Text(
-                                          "Ưu tiên :" + task.uuTien.toString(),
-                                          style: TextStyle(
-                                            color: task.uuTien < 3
-                                                ? Colors.red
-                                                : task.uuTien > 2 &&
-                                                        task.uuTien < 6
-                                                    ? Colors.orange
-                                                    : task.status == true
-                                                        ? Colors.grey
-                                                        : null,
-                                            decoration: task.status == true
-                                                ? TextDecoration.lineThrough
-                                                : null,
-                                          ),
-                                        ),
-                                        subtitle: Text(
-                                          "noi dung : " + task.ghiChu,
-                                          style: TextStyle(
-                                            decoration: task.status == true
-                                                ? TextDecoration.lineThrough
-                                                : null,
-                                            color: task.status == true
-                                                ? Colors.grey
-                                                : null,
-                                          ),
-                                        ),
-                                        trailing: IconButton(
-                                          hoverColor: Colors.red,
-                                          icon: Icon(Icons.delete),
-                                          onPressed: () {
-                                            _showDeleteConfirmation(context,
-                                                () {
-                                              taskprovider.DeleteTask(task.id);
-                                            });
-                                          },
-                                        ),
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => DetailTask(
-                                                  taskprovider.GetTaskDetails(
-                                                      task.id)),
+                                child: Container(
+                                    height: MediaQuery.of(context).size.height *
+                                        0.5, //
+                                    child: ListView.builder(
+                                      itemCount: taskprovider
+                                          .getListTaskOverDue()
+                                          .length,
+                                      itemBuilder: (context, index) {
+                                        final task = taskprovider
+                                            .getListTaskOverDue()[index];
+                                        return Card(
+                                          child: ListTile(
+                                            leading: Checkbox(
+                                              checkColor: Colors.blue,
+                                              activeColor: Colors.white,
+                                              value: context
+                                                  .watch<TaskProvider>()
+                                                  .getStatusFromMap(task.id),
+                                              onChanged: (bool? value) {
+                                                taskprovider.SetStatus(
+                                                    task.id, value!);
+                                              },
                                             ),
-                                          );
-                                        },
-                                      ),
-                                    );
-                                  },
-                                ),
+                                            title: Text(
+                                              "Ưu tiên : ${task.uuTien}",
+                                              style: TextStyle(
+                                                color: task.uuTien < 3
+                                                    ? Colors.red
+                                                    : task.uuTien > 2 &&
+                                                            task.uuTien < 6
+                                                        ? Colors.orange
+                                                        : snapshot.data! == true
+                                                            ? Colors.grey
+                                                            : null,
+                                                decoration: snapshot.data! ==
+                                                        true
+                                                    ? TextDecoration.lineThrough
+                                                    : null,
+                                              ),
+                                            ),
+                                            subtitle: Text(
+                                              "Nội dung: " + task.ghiChu,
+                                              style: TextStyle(
+                                                decoration: snapshot.data! ==
+                                                        true
+                                                    ? TextDecoration.lineThrough
+                                                    : null,
+                                                color: snapshot.data! == true
+                                                    ? Colors.grey
+                                                    : null,
+                                              ),
+                                            ),
+                                            trailing: IconButton(
+                                              hoverColor: Colors.red,
+                                              icon: Icon(Icons.delete),
+                                              onPressed: () {
+                                                _showDeleteConfirmation(context,
+                                                    () {
+                                                  taskprovider.DeleteTask(
+                                                      task.id);
+                                                });
+                                              },
+                                            ),
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      DetailTask(taskprovider
+                                                          .GetTaskDetails(
+                                                              task.id)),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        );
+                                      },
+                                    )),
                               ),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
@@ -184,84 +197,84 @@ class Home extends StatelessWidget {
                                 ],
                               ),
                               Expanded(
-                                child: ListView.builder(
-                                  itemCount: taskprovider.GetListTask().length,
-                                  itemBuilder: (context, index) {
-                                    Task task =
-                                        taskprovider.GetListTask()[index];
-                                    return task.isShow == true
-                                        ? Card(
-                                            child: ListTile(
-                                              leading: Checkbox(
-                                                checkColor: Colors.blue,
-                                                activeColor: Colors.white,
-                                                value: taskprovider.GetStatus(
-                                                    task.id),
-                                                onChanged: (bool? value) {
-                                                  taskprovider.SetStatus(
-                                                      task.id, value!);
-                                                },
-                                              ),
-                                              title: Text(
-                                                "Ưu tiên :" +
-                                                    task.uuTien.toString(),
-                                                style: TextStyle(
-                                                  color: task.uuTien < 3
-                                                      ? Colors.red
-                                                      : task.uuTien > 2 &&
-                                                              task.uuTien < 6
-                                                          ? Colors.orange
-                                                          : task.status == true
-                                                              ? Colors.grey
-                                                              : null,
-                                                  decoration:
-                                                      task.status == true
-                                                          ? TextDecoration
-                                                              .lineThrough
-                                                          : null,
-                                                ),
-                                              ),
-                                              subtitle: Text(
-                                                "Nội dung: " + task.ghiChu,
-                                                style: TextStyle(
-                                                  decoration:
-                                                      task.status == true
-                                                          ? TextDecoration
-                                                              .lineThrough
-                                                          : null,
-                                                  color: task.status == true
-                                                      ? Colors.grey
-                                                      : null,
-                                                ),
-                                              ),
-                                              trailing: IconButton(
-                                                hoverColor: Colors.red,
-                                                icon: Icon(Icons.delete),
-                                                onPressed: () {
-                                                  _showDeleteConfirmation(
-                                                      context, () {
-                                                    taskprovider.DeleteTask(
-                                                        task.id);
-                                                  });
-                                                },
-                                              ),
-                                              onTap: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        DetailTask(taskprovider
-                                                            .GetTaskDetails(
-                                                                task.id)),
-                                                  ),
-                                                );
+                                  child: ListView.builder(
+                                itemCount: taskprovider.GetListTask().length,
+                                itemBuilder: (context, index) {
+                                  final task =
+                                      taskprovider.GetListTask()[index];
+                                  return task.isShow == true
+                                      ? Card(
+                                          child: ListTile(
+                                            leading: Checkbox(
+                                              checkColor: Colors.blue,
+                                              activeColor: Colors.white,
+                                              value: context
+                                                  .watch<TaskProvider>()
+                                                  .getStatusFromMap(task.id),
+                                              onChanged: (bool? value) {
+                                                taskprovider.SetStatus(
+                                                    task.id, value!);
                                               },
                                             ),
-                                          )
-                                        : SizedBox(height: 0);
-                                  },
-                                ),
-                              ),
+                                            title: Text(
+                                              "Ưu tiên " +
+                                                  task.uuTien.toString(),
+                                              style: TextStyle(
+                                                color: task.uuTien < 3
+                                                    ? Colors.red
+                                                    : task.uuTien > 2 &&
+                                                            task.uuTien < 6
+                                                        ? Colors.orange
+                                                        : snapshot.data! == true
+                                                            ? Colors.grey
+                                                            : null,
+                                                decoration: snapshot.data! ==
+                                                        true
+                                                    ? TextDecoration.lineThrough
+                                                    : null,
+                                              ),
+                                            ),
+                                            subtitle: Text(
+                                              "Nội dung: " + task.ghiChu,
+                                              style: TextStyle(
+                                                decoration: snapshot.data! ==
+                                                        true
+                                                    ? TextDecoration.lineThrough
+                                                    : null,
+                                                color: snapshot.data! == true
+                                                    ? Colors.grey
+                                                    : null,
+                                              ),
+                                            ),
+                                            trailing: IconButton(
+                                              hoverColor: Colors.red,
+                                              icon: Icon(Icons.delete),
+                                              onPressed: () {
+                                                _showDeleteConfirmation(context,
+                                                    () {
+                                                  taskprovider.DeleteTask(
+                                                      task.id);
+                                                });
+                                              },
+                                            ),
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      DetailTask(taskprovider
+                                                          .GetTaskDetails(
+                                                              task.id)),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        )
+                                      : SizedBox(
+                                          height: 0,
+                                        );
+                                },
+                              )),
                             ],
                           ),
                         );

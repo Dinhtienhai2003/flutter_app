@@ -49,7 +49,7 @@ class DetailTask extends StatelessWidget {
       // builder là một hàm xây dựng được gọi bất cứ khi nào pSinhViens thay đổi.
       builder: (context, pTask, child) {
         // Lấy thông tin sinh viên mới nhất từ danh sách
-        Task? updatedTask = pTask.GetListTask().firstWhere(
+        Task updatedTask = pTask.GetListTask().firstWhere(
           (Task) => Task.id == _task!.id,
           orElse: () => _task!,
         );
@@ -57,7 +57,7 @@ class DetailTask extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             title: Text(
-              "Chi tiết task",
+              "Chi tiết nhiệm vụ",
               style: TextStyle(color: Colors.white),
             ),
             backgroundColor: Colors.blue,
@@ -123,12 +123,12 @@ class DetailTask extends StatelessWidget {
                 Text(
                     style: TextStyle(fontSize: 25),
                     updatedTask.end == null
-                        ? "Kết thúc"
+                        ? "Kết thúc : Không xác định"
                         : "Kết thúc " +
                             DateFormat('dd-MM-yyy HH:mm:ss')
                                 .format(updatedTask.end!)),
                 SizedBox(height: 20),
-                Text(style: TextStyle(fontSize: 25), "Anh hoan thanh"), //
+                //Text(style: TextStyle(fontSize: 25), "Ảnh "), //
               ],
             ),
           ),
