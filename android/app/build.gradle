@@ -4,7 +4,7 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
-def localProperties = new Properties()
+def localProperties = new Property()
 
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {

@@ -24,6 +24,7 @@ class Task {
     this.isShow,
   }) {
     this.isShow = true;
+    status = false;
     count++;
   }
 

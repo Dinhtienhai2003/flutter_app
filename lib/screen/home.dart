@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:ontap_sharedprefences/model/task.dart';
+import 'package:ontap_sharedprefences/screen/drawer.dart';
 import 'package:provider/provider.dart';
 import '../provider/setting.dart';
 import '../provider/task.dart';
@@ -46,67 +48,7 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: Drawer(
-        child: Center(
-          child:
-              Consumer<TaskProvider>(builder: (context, taskprovider, child) {
-            return Column(
-              children: <Widget>[
-                SafeArea(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(color: Colors.black, width: 2),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Text(
-                            "Lịch sử thao tác",
-                            style: TextStyle(
-                                fontSize: 23, fontWeight: FontWeight.bold),
-                          ),
-                          FloatingActionButton(
-                            mini: true,
-                            backgroundColor: Colors.red,
-                            child: IconButton(
-                              icon: Icon(
-                                Icons.delete,
-                                color: Colors.white,
-                              ),
-                              onPressed: () {
-                                taskprovider.ClearLog();
-                              },
-                            ),
-                            onPressed: () {
-                              taskprovider.ClearLog();
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: taskprovider.GetLogs().length,
-                    itemBuilder: (context, index) {
-                      return Card(
-                        child: ListTile(
-                          title: Text(taskprovider.GetLogs()[index]),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            );
-          }),
-        ),
-      ),
+      drawer: Drawer(child: DrawerScreen()),
       appBar: AppBar(
         backgroundColor: Colors.blue,
         title: Text(
@@ -155,16 +97,16 @@ class Home extends StatelessWidget {
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     return Consumer<TaskProvider>(
-                      builder: (context, userprovider, child) {
+                      builder: (context, taskprovider, child) {
                         return Expanded(
                           child: Column(
                             children: [
                               Expanded(
                                 child: ListView.builder(
                                   itemCount:
-                                      userprovider.getListTaskOverDue().length,
+                                      taskprovider.getListTaskOverDue().length,
                                   itemBuilder: (context, index) {
-                                    final task = userprovider
+                                    final task = taskprovider
                                         .getListTaskOverDue()[index];
                                     return Card(
                                       child: ListTile(
@@ -172,9 +114,9 @@ class Home extends StatelessWidget {
                                           checkColor: Colors.blue,
                                           activeColor: Colors.white,
                                           value:
-                                              userprovider.GetStatus(task.id),
+                                              taskprovider.GetStatus(task.id),
                                           onChanged: (bool? value) {
-                                            userprovider.SetStatus(
+                                            taskprovider.SetStatus(
                                                 task.id, value!);
                                           },
                                         ),
@@ -195,7 +137,7 @@ class Home extends StatelessWidget {
                                           ),
                                         ),
                                         subtitle: Text(
-                                          "Nội Dung :" + task.ghiChu,
+                                          "noi dung : " + task.ghiChu,
                                           style: TextStyle(
                                             decoration: task.status == true
                                                 ? TextDecoration.lineThrough
@@ -211,7 +153,7 @@ class Home extends StatelessWidget {
                                           onPressed: () {
                                             _showDeleteConfirmation(context,
                                                 () {
-                                              userprovider.DeleteTask(task.id);
+                                              taskprovider.DeleteTask(task.id);
                                             });
                                           },
                                         ),
@@ -220,7 +162,7 @@ class Home extends StatelessWidget {
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) => DetailTask(
-                                                  userprovider.GetTaskDetails(
+                                                  taskprovider.GetTaskDetails(
                                                       task.id)),
                                             ),
                                           );
@@ -243,22 +185,20 @@ class Home extends StatelessWidget {
                               ),
                               Expanded(
                                 child: ListView.builder(
-                                  itemCount: userprovider.GetListTask().length,
+                                  itemCount: taskprovider.GetListTask().length,
                                   itemBuilder: (context, index) {
-                                    final task =
-                                        userprovider.GetListTask()[index];
-                                    return userprovider.GetListTask()[index]
-                                                .isShow ==
-                                            true
+                                    Task task =
+                                        taskprovider.GetListTask()[index];
+                                    return task.isShow == true
                                         ? Card(
                                             child: ListTile(
                                               leading: Checkbox(
                                                 checkColor: Colors.blue,
                                                 activeColor: Colors.white,
-                                                value: userprovider.GetStatus(
+                                                value: taskprovider.GetStatus(
                                                     task.id),
                                                 onChanged: (bool? value) {
-                                                  userprovider.SetStatus(
+                                                  taskprovider.SetStatus(
                                                       task.id, value!);
                                                 },
                                               ),
@@ -282,7 +222,7 @@ class Home extends StatelessWidget {
                                                 ),
                                               ),
                                               subtitle: Text(
-                                                "Nội Dung :" + task.ghiChu,
+                                                "Nội dung: " + task.ghiChu,
                                                 style: TextStyle(
                                                   decoration:
                                                       task.status == true
@@ -300,7 +240,7 @@ class Home extends StatelessWidget {
                                                 onPressed: () {
                                                   _showDeleteConfirmation(
                                                       context, () {
-                                                    userprovider.DeleteTask(
+                                                    taskprovider.DeleteTask(
                                                         task.id);
                                                   });
                                                 },
@@ -310,7 +250,7 @@ class Home extends StatelessWidget {
                                                   context,
                                                   MaterialPageRoute(
                                                     builder: (context) =>
-                                                        DetailTask(userprovider
+                                                        DetailTask(taskprovider
                                                             .GetTaskDetails(
                                                                 task.id)),
                                                   ),
@@ -318,9 +258,7 @@ class Home extends StatelessWidget {
                                               },
                                             ),
                                           )
-                                        : SizedBox(
-                                            height: 0,
-                                          );
+                                        : SizedBox(height: 0);
                                   },
                                 ),
                               ),

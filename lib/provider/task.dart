@@ -10,29 +10,46 @@ class TaskProvider extends ChangeNotifier {
   final localLogs = LocalstorageLog();
   List<Task> listTask = [];
 
-  List<Task> listTaskOverDue = [];
+  List<String> listIdTaskOverDue = [];
 
   List<String> logs = [];
 
-  List<Task> getListTaskOverDue() {
-    return listTaskOverDue;
-  }
-
   void updateOverdueTasks() {
-    CheckIsShow();
     final now = DateTime.now();
-
+    print("----------");
     for (Task task in listTask) {
+      print("Dang check id = " + task.id);
       if (task.end!.isBefore(now)) {
-        if (listTaskOverDue.contains(task)) {
+        if (listIdTaskOverDue.contains(task.id)) {
           continue;
         } else {
-          listTaskOverDue.add(task);
+          listIdTaskOverDue.add(task.id);
+          SetIsShow(task.id);
         }
       }
     }
 
     notifyListeners();
+  }
+
+  void SetIsShow(String id) {
+    for (Task task in listTask) {
+      if (task.id == id) {
+        task.isShow = false;
+      }
+      notifyListeners();
+    }
+  }
+
+  List<Task> getListTaskOverDue() {
+    List<Task> listTaskOverDue = [];
+
+    for (Task task in listTask) {
+      if (listIdTaskOverDue.contains(task.id)) {
+        listTaskOverDue.add(task);
+      }
+    }
+    return listTaskOverDue;
   }
 
   void Setisshow(Task taskTmp) {
@@ -44,11 +61,6 @@ class TaskProvider extends ChangeNotifier {
         break;
       }
     }
-  }
-
-  void AddTaskOverDue(Task task) {
-    listTaskOverDue.add(task);
-    notifyListeners();
   }
 
   void ClearLog() {
@@ -65,7 +77,7 @@ class TaskProvider extends ChangeNotifier {
   TaskProvider() {
     localTasks.getData().then((tasks) {
       listTask = tasks;
-      updateOverdueTasks();
+
       if (listTask.isNotEmpty) {
         notifyListeners();
       }
@@ -86,16 +98,7 @@ class TaskProvider extends ChangeNotifier {
     return logs.reversed.toList();
   }
 
-  void CheckIsShow() {
-    for (Task task in listTask) {
-      if (listTaskOverDue.contains(task)) {
-        task.isShow = false;
-      }
-    }
-  }
-
   List<Task> GetListTask() {
-    CheckIsShow();
     return listTask;
   }
 
@@ -166,7 +169,6 @@ class TaskProvider extends ChangeNotifier {
 
     logs.add("Nhiệm vụ ${ghiChu} đã được thêm lúc ${LayGioHienTai()}");
     CapNhatDuLieuLog();
-    updateOverdueTasks();
   }
 
   void UpdateTask(
@@ -181,7 +183,7 @@ class TaskProvider extends ChangeNotifier {
         CapNhatDuLieuLog();
 
         CapNhatDuLieu();
-        updateOverdueTasks();
+
         return;
       }
     }
