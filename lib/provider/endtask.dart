@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import '../localstorage/localEnd.dart';
 import '../localstorage/statusTask.dart';
 
 class EndTaskProvider extends ChangeNotifier {
-  final LocalstorageStatusTask localEndStoreTask = LocalstorageStatusTask();
+  final LocalstorageEndTask localEndStoreTask = LocalstorageEndTask();
   Map<String, dynamic> mapEndTask = {};
 
   Map<String, dynamic> get GetMapEndTask => mapEndTask;
@@ -22,9 +23,9 @@ class EndTaskProvider extends ChangeNotifier {
     return mapEndTask[id];
   }
 
-  void updateTaskStatus(String taskId, bool newStatus) {
+  void updateTaskStatus(String taskId, DateTime? newTime) {
     if (mapEndTask.containsKey(taskId)) {
-      mapEndTask[taskId]['end'] = newStatus;
+      mapEndTask[taskId]['end'] = newTime;
       localEndStoreTask.setData(mapEndTask);
       notifyListeners();
     }

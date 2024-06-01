@@ -26,7 +26,6 @@ class Task {
     this.isShow = true;
     status = false;
     count++;
-    end = null;
   }
 
   Task copyWith({
