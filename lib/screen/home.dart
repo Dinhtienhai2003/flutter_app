@@ -84,18 +84,6 @@ class Home extends StatelessWidget {
         child: Center(
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    "Nhiệm vụ quá hạn",
-                    style: TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red),
-                  )
-                ],
-              ),
               StreamBuilder<DateTime>(
                 stream: context.read<TaskProvider>().timeStream,
                 builder: (context, snapshot) {
@@ -105,88 +93,154 @@ class Home extends StatelessWidget {
                         return Expanded(
                           child: Column(
                             children: [
-                              Expanded(
-                                child: Container(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.5, //
-                                    child: ListView.builder(
-                                      itemCount: taskprovider
-                                          .getListTaskOverDue()
-                                          .length,
-                                      itemBuilder: (context, index) {
-                                        final task = taskprovider
-                                            .getListTaskOverDue()[index];
-                                        return Card(
-                                          child: ListTile(
-                                            leading: Checkbox(
-                                              checkColor: Colors.blue,
-                                              activeColor: Colors.white,
-                                              value: context
-                                                  .watch<TaskProvider>()
-                                                  .getStatusFromMap(task.id),
-                                              onChanged: (bool? value) {
-                                                taskprovider.SetStatus(
-                                                    task.id, value!);
-                                              },
-                                            ),
-                                            title: Text(
-                                              "Ưu tiên : ${task.uuTien}",
-                                              style: TextStyle(
-                                                color: task.uuTien < 3
-                                                    ? Colors.red
-                                                    : task.uuTien > 2 &&
-                                                            task.uuTien < 6
-                                                        ? Colors.orange
-                                                        : snapshot.data! == true
-                                                            ? Colors.grey
-                                                            : null,
-                                                decoration: snapshot.data! ==
-                                                        true
-                                                    ? TextDecoration.lineThrough
-                                                    : null,
+                              taskprovider.getListTaskOverDue().length > 0
+                                  ? Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "Nhiệm vụ quá hạn",
+                                          style: TextStyle(
+                                              fontSize: 25,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Row(
+                                          children: [
+                                           
+                                            IconButton(
+                                                icon: context
+                                                        .watch<
+                                                            SettingProvider>()
+                                                        .isGiam
+                                                    ? Icon(
+                                                        Icons.arrow_downward,
+                                                        color: context
+                                                                .watch<
+                                                                    SettingProvider>()
+                                                                .isDark
+                                                            ? Colors.white
+                                                            : Colors.black,
+                                                      )
+                                                    : Icon(
+                                                        Icons.arrow_upward,
+                                                        color: context
+                                                                .watch<
+                                                                    SettingProvider>()
+                                                                .isDark
+                                                            ? Colors.white
+                                                            : Colors.black,
+                                                      ),
+                                                onPressed: () {
+                                                  context
+                                                      .read<SettingProvider>()
+                                                      .setSort();
+                                                })
+                                          ],
+                                        )
+                                      ],
+                                    )
+                                  : SizedBox(height: 0),
+                              taskprovider.getListTaskOverDue().length > 0
+                                  ? Expanded(
+                                      child: ListView.builder(
+                                        itemCount: taskprovider
+                                            .getListTaskOverDue()
+                                            .length,
+                                        itemBuilder: (context, index) {
+                                          final task =
+                                              taskprovider.GetListTask();
+                                          if (context
+                                              .watch<SettingProvider>()
+                                              .isGiam) {
+                                            task.sort((a, b) =>
+                                                b.uuTien.compareTo(a.uuTien));
+                                          } else {
+                                            task.sort((a, b) =>
+                                                a.uuTien.compareTo(b.uuTien));
+                                          }
+
+                                          return Card(
+                                            child: ListTile(
+                                              leading: Checkbox(
+                                                checkColor: Colors.blue,
+                                                activeColor: Colors.white,
+                                                value: context
+                                                    .watch<TaskProvider>()
+                                                    .getStatusFromMap(
+                                                        task[index].id),
+                                                onChanged: (bool? value) {
+                                                  taskprovider.SetStatus(
+                                                      task[index].id, value!);
+                                                },
                                               ),
-                                            ),
-                                            subtitle: Text(
-                                              "Nội dung: " + task.ghiChu,
-                                              style: TextStyle(
-                                                decoration: snapshot.data! ==
-                                                        true
-                                                    ? TextDecoration.lineThrough
-                                                    : null,
-                                                color: snapshot.data! == true
-                                                    ? Colors.grey
-                                                    : null,
-                                              ),
-                                            ),
-                                            trailing: IconButton(
-                                              hoverColor: Colors.red,
-                                              icon: Icon(Icons.delete),
-                                              onPressed: () {
-                                                _showDeleteConfirmation(context,
-                                                    () {
-                                                  taskprovider.DeleteTask(
-                                                      task.id);
-                                                });
-                                              },
-                                            ),
-                                            onTap: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      DetailTask(taskprovider
-                                                          .GetTaskDetails(
-                                                              task.id)),
+                                              title: Text(
+                                                "Ưu tiên : ${task[index].uuTien}",
+                                                style: TextStyle(
+                                                  color: task[index].uuTien < 3
+                                                      ? Colors.red
+                                                      : task[index].uuTien >
+                                                                  2 &&
+                                                              task[index]
+                                                                      .uuTien <
+                                                                  6
+                                                          ? Colors.orange
+                                                          : snapshot.data! ==
+                                                                  true
+                                                              ? Colors.grey
+                                                              : null,
+                                                  decoration:
+                                                      snapshot.data! == true
+                                                          ? TextDecoration
+                                                              .lineThrough
+                                                          : null,
                                                 ),
-                                              );
-                                            },
-                                          ),
-                                        );
-                                      },
-                                    )),
-                              ),
+                                              ),
+                                              subtitle: Text(
+                                                "Nội dung: " +
+                                                    task[index].ghiChu,
+                                                style: TextStyle(
+                                                  decoration:
+                                                      snapshot.data! == true
+                                                          ? TextDecoration
+                                                              .lineThrough
+                                                          : null,
+                                                  color: snapshot.data! == true
+                                                      ? Colors.grey
+                                                      : null,
+                                                ),
+                                              ),
+                                              trailing: IconButton(
+                                                hoverColor: Colors.red,
+                                                icon: Icon(Icons.delete),
+                                                onPressed: () {
+                                                  _showDeleteConfirmation(
+                                                      context, () {
+                                                    taskprovider.DeleteTask(
+                                                        task[index].id);
+                                                  });
+                                                },
+                                              ),
+                                              onTap: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        DetailTask(taskprovider
+                                                            .GetTaskDetails(
+                                                                task[index]
+                                                                    .id)),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    )
+                                  : SizedBox(height: 0),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     "Nhiệm vụ hiện tại",
@@ -194,15 +248,55 @@ class Home extends StatelessWidget {
                                         fontSize: 25,
                                         fontWeight: FontWeight.bold),
                                   ),
+                                  SizedBox(width: 16.0),
+                                  Row(
+                                    children: [
+                                      
+                                      IconButton(
+                                          icon: context
+                                                  .watch<SettingProvider>()
+                                                  .isGiam
+                                              ? Icon(
+                                                  Icons.arrow_downward,
+                                                  color: context
+                                                          .watch<
+                                                              SettingProvider>()
+                                                          .isDark
+                                                      ? Colors.white
+                                                      : Colors.black,
+                                                )
+                                              : Icon(
+                                                  Icons.arrow_upward,
+                                                  color: context
+                                                          .watch<
+                                                              SettingProvider>()
+                                                          .isDark
+                                                      ? Colors.white
+                                                      : Colors.black,
+                                                ),
+                                          onPressed: () {
+                                            context
+                                                .read<SettingProvider>()
+                                                .setSort();
+                                          })
+                                    ],
+                                  )
                                 ],
                               ),
+                              SizedBox(height: 16.0),
                               Expanded(
                                   child: ListView.builder(
                                 itemCount: taskprovider.GetListTask().length,
                                 itemBuilder: (context, index) {
-                                  final task =
-                                      taskprovider.GetListTask()[index];
-                                  return task.isShow == true
+                                  final task = taskprovider.GetListTask();
+                                  if (context.watch<SettingProvider>().isGiam) {
+                                    task.sort(
+                                        (a, b) => b.uuTien.compareTo(a.uuTien));
+                                  } else {
+                                    task.sort(
+                                        (a, b) => a.uuTien.compareTo(b.uuTien));
+                                  }
+                                  return task[index].isShow == true
                                       ? Card(
                                           child: ListTile(
                                             leading: Checkbox(
@@ -210,20 +304,22 @@ class Home extends StatelessWidget {
                                               activeColor: Colors.white,
                                               value: context
                                                   .watch<TaskProvider>()
-                                                  .getStatusFromMap(task.id),
+                                                  .getStatusFromMap(
+                                                      task[index].id),
                                               onChanged: (bool? value) {
                                                 taskprovider.SetStatus(
-                                                    task.id, value!);
+                                                    task[index].id, value!);
                                               },
                                             ),
                                             title: Text(
                                               "Ưu tiên " +
-                                                  task.uuTien.toString(),
+                                                  task[index].uuTien.toString(),
                                               style: TextStyle(
-                                                color: task.uuTien < 3
+                                                color: task[index].uuTien < 3
                                                     ? Colors.red
-                                                    : task.uuTien > 2 &&
-                                                            task.uuTien < 6
+                                                    : task[index].uuTien > 2 &&
+                                                            task[index].uuTien <
+                                                                6
                                                         ? Colors.orange
                                                         : snapshot.data! == true
                                                             ? Colors.grey
@@ -235,7 +331,7 @@ class Home extends StatelessWidget {
                                               ),
                                             ),
                                             subtitle: Text(
-                                              "Nội dung: " + task.ghiChu,
+                                              "Nội dung: " + task[index].ghiChu,
                                               style: TextStyle(
                                                 decoration: snapshot.data! ==
                                                         true
@@ -253,7 +349,7 @@ class Home extends StatelessWidget {
                                                 _showDeleteConfirmation(context,
                                                     () {
                                                   taskprovider.DeleteTask(
-                                                      task.id);
+                                                      task[index].id);
                                                 });
                                               },
                                             ),
@@ -264,7 +360,7 @@ class Home extends StatelessWidget {
                                                   builder: (context) =>
                                                       DetailTask(taskprovider
                                                           .GetTaskDetails(
-                                                              task.id)),
+                                                              task[index].id)),
                                                 ),
                                               );
                                             },

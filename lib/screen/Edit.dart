@@ -36,6 +36,10 @@ class Edit extends StatefulWidget {
 
 class _EditState extends State<Edit> {
   final _formKey = GlobalKey<FormState>();
+  TextEditingController _uuTienController = TextEditingController();
+  TextEditingController _ghiChuController = TextEditingController();
+  TextEditingController _endController = TextEditingController();
+
   int _uuTien = 1;
   String _ghiChu = '';
 
@@ -47,6 +51,9 @@ class _EditState extends State<Edit> {
       _ghiChu = widget._Task!.ghiChu;
       widget._beginDate = widget._Task!.begin!;
       widget._endDate = widget._Task?.end != null ? widget._Task!.end! : null;
+      _endController.text = widget._Task?.end != null
+          ? DateFormat('dd-MM-yyyy HH:mm:ss').format(widget._Task!.end!)
+          : "";
     }
   }
 
@@ -71,6 +78,7 @@ class _EditState extends State<Edit> {
   void _onEndDateTimeChanged(DateTime dateTime) {
     setState(() {
       widget._endDate = dateTime;
+      _endController.text = DateFormat('dd-MM-yyyy HH:mm:ss').format(dateTime);
     });
   }
 
@@ -156,6 +164,7 @@ class _EditState extends State<Edit> {
               SizedBox(height: 20),
               TextFormField(
                 initialValue: _uuTien.toString(),
+                keyboardType: TextInputType.number,
                 onChanged: _onUuTienChanged,
                 decoration: InputDecoration(
                   labelText: 'Ưu tiên',
@@ -170,20 +179,19 @@ class _EditState extends State<Edit> {
               ),
               TextFormField(
                 readOnly: true,
-                controller: TextEditingController(
-                  text: widget._endDate == null
-                      ? ""
-                      : DateFormat('dd-MM-yyyy HH:mm:ss')
-                          .format(widget._endDate!),
-                ),
+                onTap: () {
+                  _selectDateTime(context, _onEndDateTimeChanged);
+                },
+                controller: _endController,
                 decoration: InputDecoration(
                   labelText: 'Kết thúc',
-                  suffixIcon: IconButton(
-                    icon: Icon(Icons.calendar_today),
-                    onPressed: () {
-                      _selectDateTime(context, _onEndDateTimeChanged);
-                    },
-                  ),
+                  //LỖI ~~~~~
+                  // suffixIcon: IconButton(
+                  //   icon: Icon(Icons.calendar_today),
+                  //   onPressed: () {
+                  //     _selectDateTime(context, _onEndDateTimeChanged);
+                  //   },
+                  // ),
                 ),
               ),
               SizedBox(height: 20),
@@ -199,11 +207,13 @@ class _EditState extends State<Edit> {
                         () {
                           if (widget._mode == 0) {
                             context.read<TaskProvider>().AddTask(
-                                  _uuTien,
-                                  _ghiChu,
-                                  widget._beginDate,
-                                  widget._endDate,
-                                );
+                                _uuTien,
+                                _ghiChu,
+                                widget._beginDate,
+                                widget._endDate == null
+                                    ? null
+                                    : DateFormat('dd-MM-yyyy HH:mm:ss')
+                                        .parse(_endController.text));
                           } else {
                             context.read<TaskProvider>().UpdateTask(
                                   widget._Task!.id,

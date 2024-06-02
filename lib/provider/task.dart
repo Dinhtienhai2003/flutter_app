@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../localstorage/localLog.dart';
 import '../localstorage/localTask.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+//import 'package:firebase_messaging/firebase_messaging.dart';
 
 import '../localstorage/statusTask.dart';
 import '../model/task.dart';
@@ -24,6 +27,8 @@ class TaskProvider extends ChangeNotifier {
 
   List<String> logs = [];
 
+  //TODO thongbaoday
+
 //TODO chung
   TaskProvider() {
     //localStatusTask.getMapEndTask
@@ -42,7 +47,7 @@ class TaskProvider extends ChangeNotifier {
     localLogs.getData().then((value) => logs = value);
 
     timeStream.listen((now) {
-      updateOverdueTasks();
+      updateOverdueTasks().then((value) => null);
     });
 
     notifyListeners();
@@ -62,7 +67,7 @@ class TaskProvider extends ChangeNotifier {
 
   //TODO task hết hạn
 
-  void updateOverdueTasks() {
+  Future<void> updateOverdueTasks() async {
     final now = DateTime.now();
 
     for (Task task in listTask) {
@@ -171,9 +176,13 @@ class TaskProvider extends ChangeNotifier {
     for (Task task in listTask) {
       if (task.id == id) {
         mapStatusTask[id] = status;
+
         await localStatusTask.setData(mapStatusTask);
-        logs.add(
-            'Nhiệm vụ ${task.ghiChu} đã thay đổi trạng thái hoàn thành lúc ${LayGioHienTai()}');
+
+        if (status) {
+          logs.add(
+              'Nhiệm vụ ${task.ghiChu} đã thay đổi trạng thái hoàn thành lúc ${LayGioHienTai()}');
+        }
 
         // } else {
         //   logs.add(
