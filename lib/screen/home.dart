@@ -53,219 +53,115 @@ class Home extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.blue,
         title: Text(
-          "Todo App",
+          "Todo app",
           style: TextStyle(color: Colors.white),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    SizedBox(
-                      child: context.watch<SettingProvider>().isDark
-                          ? Icon(Icons.nightlight_round, color: Colors.black)
-                          : Icon(Icons.wb_sunny, color: Colors.yellow),
-                    ),
-                    Switch(
-                      value: context.watch<SettingProvider>().isDark,
-                      onChanged: (newValue) {
-                        context.read<SettingProvider>().setBrightness(newValue);
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Switch(
+                activeColor: Colors.black12,
+                activeTrackColor: Colors.black87,
+                inactiveTrackColor: Colors.yellow,
+
+                activeThumbImage: AssetImage(
+                    'assets/night.png'), // Hình ảnh cho thumb khi hoạt động
+                inactiveThumbImage: AssetImage(
+                    'assets/sun.png'), // Hình ảnh cho thumb khi không hoạt động
+                value: context.watch<SettingProvider>().isDark,
+                onChanged: (newValue) {
+                  context.read<SettingProvider>().setBrightness(newValue);
+                },
+              ),
+              PopupMenuButton(
+                iconSize: 30,
+                itemBuilder: (BuildContext context) {
+                  return [
+                    PopupMenuItem(
+                      child: Row(
+                        children: [
+                          Text("Tăng dần theo độ ưu tiên"),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Icon(Icons.arrow_upward)
+                        ],
+                      ),
+                      value: 'Sắp xếp tăng',
+                      onTap: () {
+                        context.read<SettingProvider>().sortUp();
                       },
-                      activeColor: Colors.white,
                     ),
-                  ],
-                ),
-                PopupMenuButton(
-                  itemBuilder: (BuildContext context) {
-                    return [
-                      PopupMenuItem(
-                        child: Row(
-                          children: [
-                            Text("Tăng dần theo độ ưu tiên"),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Icon(Icons.arrow_upward)
-                          ],
-                        ),
-                        value: 'Sắp xếp tăng',
-                        onTap: () {
-                          context.read<SettingProvider>().sortUp();
-                        },
+                    PopupMenuItem(
+                      child: Row(
+                        children: [
+                          Text("Giảm dần theo độ ưu tiên"),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Icon(Icons.arrow_downward)
+                        ],
                       ),
-                      PopupMenuItem(
-                        child: Row(
-                          children: [
-                            Text("Giảm dần theo độ ưu tiên"),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Icon(Icons.arrow_downward)
-                          ],
-                        ),
-                        value: 'Sắp xếp giảm',
-                        onTap: () {
-                          context.read<SettingProvider>().sortDown();
-                        },
-                      ),
-                    ];
-                  },
-                  onSelected: (value) {
-                    print('Selected: $value');
-                  },
-                ),
-              ],
-            ),
+                      value: 'Sắp xếp giảm',
+                      onTap: () {
+                        context.read<SettingProvider>().sortDown();
+                      },
+                    ),
+                  ];
+                },
+                onSelected: (value) {
+                  print('Selected: $value');
+                },
+              ),
+            ],
           ),
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Column(
-            children: [
-              StreamBuilder<DateTime>(
-                stream: context.read<TaskProvider>().timeStream,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Consumer2<TaskProvider, SettingProvider>(
-                      builder: (context, taskprovider, settingprovider, child) {
-                        return Expanded(
-                          child: Column(
-                            children: [
-                              taskprovider.getListTaskOverDue().length > 0
-                                  ? Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          "Nhiệm vụ quá hạn",
-                                          style: TextStyle(
-                                              fontSize: 25,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ],
-                                    )
-                                  : SizedBox(height: 0),
-                              taskprovider.getListTaskOverDue().length > 0
-                                  ? Expanded(
-                                      child: ListView.builder(
-                                        itemCount: taskprovider
-                                            .getListTaskOverDue()
-                                            .length,
-                                        itemBuilder: (context, index) {
-                                          final task =
-                                              taskprovider.getListTaskOverDue();
-
-                                          return Card(
-                                            child: ListTile(
-                                              leading: Checkbox(
-                                                checkColor: Colors.blue,
-                                                activeColor: Colors.white,
-                                                value: taskprovider
-                                                    .getStatusFromMap(
-                                                        task[index].id),
-                                                onChanged: (bool? value) {
-                                                  taskprovider.SetStatus(
-                                                      task[index].id, value!);
-                                                },
-                                              ),
-                                              title: Text(
-                                                "Ưu tiên : ${task[index].uuTien}",
-                                                style: TextStyle(
-                                                  color: task[index].uuTien < 3
-                                                      ? Colors.red
-                                                      : task[index].uuTien >
-                                                                  2 &&
-                                                              task[index]
-                                                                      .uuTien <
-                                                                  6
-                                                          ? Colors.orange
-                                                          : snapshot.data! ==
-                                                                  true
-                                                              ? Colors.grey
-                                                              : null,
-                                                  decoration:
-                                                      snapshot.data! == true
-                                                          ? TextDecoration
-                                                              .lineThrough
-                                                          : null,
-                                                ),
-                                              ),
-                                              subtitle: Text(
-                                                "Nội dung: " +
-                                                    task[index].ghiChu,
-                                                style: TextStyle(
-                                                  decoration:
-                                                      snapshot.data! == true
-                                                          ? TextDecoration
-                                                              .lineThrough
-                                                          : null,
-                                                  color: snapshot.data! == true
-                                                      ? Colors.grey
-                                                      : null,
-                                                ),
-                                              ),
-                                              trailing: IconButton(
-                                                hoverColor: Colors.red,
-                                                icon: Icon(Icons.delete),
-                                                onPressed: () {
-                                                  _showDeleteConfirmation(
-                                                      context, () {
-                                                    taskprovider.DeleteTask(
-                                                        task[index].id);
-                                                  });
-                                                },
-                                              ),
-                                              onTap: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        DetailTask(taskprovider
-                                                            .GetTaskDetails(
-                                                                task[index]
-                                                                    .id)),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          );
-                                        },
+        child: Column(
+          children: [
+            StreamBuilder<DateTime>(
+              stream: context.read<TaskProvider>().timeStream,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Consumer2<TaskProvider, SettingProvider>(
+                    builder: (context, taskprovider, settingprovider, child) {
+                      return Flexible(
+                        child: Column(
+                          children: [
+                            taskprovider.getListTaskOverDue().length > 0
+                                ? Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Nhiệm vụ quá hạn",
+                                        style: TextStyle(
+                                            fontSize: 25,
+                                            fontWeight: FontWeight.bold),
                                       ),
-                                    )
-                                  : SizedBox(height: 0),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    "Nhiệm vụ hiện tại",
-                                    style: TextStyle(
-                                        fontSize: 25,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  SizedBox(width: 16.0),
-                                ],
-                              ),
-                              SizedBox(height: 16.0),
-                              Expanded(
-                                  child: ListView.builder(
-                                itemCount: taskprovider.GetListTask().length,
-                                itemBuilder: (context, index) {
-                                  final task = taskprovider.GetListTask();
-                                  if (context.watch<SettingProvider>().isGiam) {
-                                    task.sort(
-                                        (a, b) => b.uuTien.compareTo(a.uuTien));
-                                  } else {
-                                    task.sort(
-                                        (a, b) => a.uuTien.compareTo(b.uuTien));
-                                  }
-                                  return task[index].isShow == true
-                                      ? Card(
+                                    ],
+                                  )
+                                : SizedBox(height: 0),
+                            taskprovider.getListTaskOverDue().length > 0
+                                ? Container(
+                                    height: taskprovider
+                                            .getListTaskOverDue()
+                                            .length *
+                                        100.0,
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: NeverScrollableScrollPhysics(),
+                                      itemCount: taskprovider
+                                          .getListTaskOverDue()
+                                          .length,
+                                      itemBuilder: (context, index) {
+                                        final task =
+                                            taskprovider.getListTaskOverDue();
+
+                                        return Card(
                                           child: ListTile(
                                             leading: Checkbox(
                                               checkColor: Colors.blue,
@@ -279,8 +175,7 @@ class Home extends StatelessWidget {
                                               },
                                             ),
                                             title: Text(
-                                              "Ưu tiên " +
-                                                  task[index].uuTien.toString(),
+                                              "Ưu tiên : ${task[index].uuTien}",
                                               style: TextStyle(
                                                 color: task[index].uuTien < 3
                                                     ? Colors.red
@@ -332,24 +227,118 @@ class Home extends StatelessWidget {
                                               );
                                             },
                                           ),
-                                        )
-                                      : SizedBox(
-                                          height: 0,
                                         );
-                                },
-                              )),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  } else {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                },
-              ),
-            ],
-          ),
+                                      },
+                                    ),
+                                  )
+                                : SizedBox(height: 0),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "Nhiệm vụ hiện tại",
+                                  style: TextStyle(
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(width: 16.0),
+                              ],
+                            ),
+                            SizedBox(height: 16.0),
+                            Flexible(
+                                child: ListView.builder(
+                              itemCount: taskprovider.GetListTask().length,
+                              itemBuilder: (context, index) {
+                                final task = taskprovider.GetListTask();
+                                if (context.watch<SettingProvider>().isGiam) {
+                                  task.sort(
+                                      (a, b) => b.uuTien.compareTo(a.uuTien));
+                                } else {
+                                  task.sort(
+                                      (a, b) => a.uuTien.compareTo(b.uuTien));
+                                }
+                                return task[index].isShow == true
+                                    ? Card(
+                                        child: ListTile(
+                                          leading: Checkbox(
+                                            checkColor: Colors.blue,
+                                            activeColor: Colors.white,
+                                            value:
+                                                taskprovider.getStatusFromMap(
+                                                    task[index].id),
+                                            onChanged: (bool? value) {
+                                              taskprovider.SetStatus(
+                                                  task[index].id, value!);
+                                            },
+                                          ),
+                                          title: Text(
+                                            "Ưu tiên " +
+                                                task[index].uuTien.toString(),
+                                            style: TextStyle(
+                                              color: task[index].uuTien < 3
+                                                  ? Colors.red
+                                                  : task[index].uuTien > 2 &&
+                                                          task[index].uuTien < 6
+                                                      ? Colors.orange
+                                                      : snapshot.data! == true
+                                                          ? Colors.grey
+                                                          : null,
+                                              decoration: snapshot.data! == true
+                                                  ? TextDecoration.lineThrough
+                                                  : null,
+                                            ),
+                                          ),
+                                          subtitle: Text(
+                                            "Nội dung: " + task[index].ghiChu,
+                                            style: TextStyle(
+                                              decoration: snapshot.data! == true
+                                                  ? TextDecoration.lineThrough
+                                                  : null,
+                                              color: snapshot.data! == true
+                                                  ? Colors.grey
+                                                  : null,
+                                            ),
+                                          ),
+                                          trailing: IconButton(
+                                            hoverColor: Colors.red,
+                                            icon: Icon(Icons.delete),
+                                            onPressed: () {
+                                              _showDeleteConfirmation(context,
+                                                  () {
+                                                taskprovider.DeleteTask(
+                                                    task[index].id);
+                                              });
+                                            },
+                                          ),
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    DetailTask(taskprovider
+                                                        .GetTaskDetails(
+                                                            task[index].id)),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      )
+                                    : SizedBox(
+                                        height: 0,
+                                      );
+                              },
+                            )),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                } else {
+                  return Center(child: CircularProgressIndicator());
+                }
+              },
+            ),
+          ],
         ),
       ),
       floatingActionButton: Padding(
