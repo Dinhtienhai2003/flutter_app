@@ -10,6 +10,41 @@ class DetailTask extends StatelessWidget {
   final Task? _task;
   const DetailTask(this._task, {super.key});
 
+  Future<void> _showDeleteConfirmation(
+      BuildContext context, Function deleteFunction) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Xác nhận'),
+          content: Text('Bạn có muốn xóa không?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Hủy'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Xóa'),
+              onPressed: () {
+                deleteFunction();
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Xóa thành công!'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _showConfirmation(
       BuildContext context, Function deleteFunction) async {
     return showDialog<void>(
@@ -49,7 +84,7 @@ class DetailTask extends StatelessWidget {
       // builder là một hàm xây dựng được gọi bất cứ khi nào pSinhViens thay đổi.
       builder: (context, pTask, child) {
         // Lấy thông tin sinh viên mới nhất từ danh sách
-        Task? updatedTask = pTask.GetListTask().firstWhere(
+        Task updatedTask = pTask.GetListTask().firstWhere(
           (Task) => Task.id == _task!.id,
           orElse: () => _task!,
         );
@@ -57,7 +92,7 @@ class DetailTask extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             title: Text(
-              "Chi tiết task",
+              "Chi tiết nhiệm vụ",
               style: TextStyle(color: Colors.white),
             ),
             backgroundColor: Colors.blue,
@@ -92,9 +127,10 @@ class DetailTask extends StatelessWidget {
                     IconButton(
                       icon: Icon(Icons.delete),
                       onPressed: () {
-                        context.read<TaskProvider>().DeleteTask(_task!.id);
-
-                        Navigator.pop(context);
+                        _showDeleteConfirmation(context, () {
+                          context.read<TaskProvider>().DeleteTask(_task!.id);
+                          Navigator.of(context).pop();
+                        });
                       },
                     ),
                   ],
@@ -122,11 +158,13 @@ class DetailTask extends StatelessWidget {
                 SizedBox(height: 20),
                 Text(
                     style: TextStyle(fontSize: 25),
-                    "Kết thúc : " +
-                        DateFormat('dd-MM-yyy HH:mm:ss')
-                            .format(updatedTask.end)),
+                    updatedTask.end == null
+                        ? "Kết thúc : Không xác định"
+                        : "Kết thúc " +
+                            DateFormat('dd-MM-yyy HH:mm:ss')
+                                .format(updatedTask.end!)),
                 SizedBox(height: 20),
-                Text(style: TextStyle(fontSize: 25), "Anh hoan thanh"), //
+                //Text(style: TextStyle(fontSize: 25), "Ảnh "), //
               ],
             ),
           ),

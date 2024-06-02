@@ -8,10 +8,6 @@ class LocalstorageLog {
 
   get getLogs => logs;
 
-  void setLogs(List<String> tmp) {
-    logs = tmp;
-  }
-
   Future<void> clearData() async {
     final SharedPreferences prefs = await _prefs;
     prefs.remove('logs');
@@ -33,10 +29,10 @@ class LocalstorageLog {
     return logs;
   }
 
-  Future<void> setData() async {
+  Future<void> setData(List<String> tmp) async {
     List<String> logJson = logs.map((log) => jsonEncode(log)).toList();
 
     final SharedPreferences prefs = await _prefs;
-    prefs.setStringList('logs', logJson);
+    prefs.setStringList('logs', tmp);
   }
 }
