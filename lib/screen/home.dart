@@ -60,19 +60,62 @@ class Home extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                SizedBox(
-                  child: context.watch<SettingProvider>().isDark
-                      ? Icon(Icons.nightlight_round, color: Colors.black)
-                      : Icon(Icons.wb_sunny, color: Colors.yellow),
-                  width: 40,
+                Row(
+                  children: [
+                    SizedBox(
+                      child: context.watch<SettingProvider>().isDark
+                          ? Icon(Icons.nightlight_round, color: Colors.black)
+                          : Icon(Icons.wb_sunny, color: Colors.yellow),
+                    ),
+                    Switch(
+                      value: context.watch<SettingProvider>().isDark,
+                      onChanged: (newValue) {
+                        context.read<SettingProvider>().setBrightness(newValue);
+                      },
+                      activeColor: Colors.white,
+                    ),
+                  ],
                 ),
-                Switch(
-                  value: context.watch<SettingProvider>().isDark,
-                  onChanged: (newValue) {
-                    context.read<SettingProvider>().setBrightness(newValue);
+                PopupMenuButton(
+                  itemBuilder: (BuildContext context) {
+                    return [
+                      PopupMenuItem(
+                        child: Row(
+                          children: [
+                            Text("Tăng dần theo độ ưu tiên"),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Icon(Icons.arrow_upward)
+                          ],
+                        ),
+                        value: 'Sắp xếp tăng',
+                        onTap: () {
+                          context.read<SettingProvider>().sortUp();
+                        },
+                      ),
+                      PopupMenuItem(
+                        child: Row(
+                          children: [
+                            Text("Giảm dần theo độ ưu tiên"),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Icon(Icons.arrow_downward)
+                          ],
+                        ),
+                        value: 'Sắp xếp giảm',
+                        onTap: () {
+                          context.read<SettingProvider>().sortDown();
+                        },
+                      ),
+                    ];
                   },
-                  activeColor: Colors.white,
+                  onSelected: (value) {
+                    print('Selected: $value');
+                  },
                 ),
               ],
             ),
@@ -88,8 +131,8 @@ class Home extends StatelessWidget {
                 stream: context.read<TaskProvider>().timeStream,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    return Consumer<TaskProvider>(
-                      builder: (context, taskprovider, child) {
+                    return Consumer2<TaskProvider, SettingProvider>(
+                      builder: (context, taskprovider, settingprovider, child) {
                         return Expanded(
                           child: Column(
                             children: [
@@ -104,39 +147,6 @@ class Home extends StatelessWidget {
                                               fontSize: 25,
                                               fontWeight: FontWeight.bold),
                                         ),
-                                        Row(
-                                          children: [
-                                           
-                                            IconButton(
-                                                icon: context
-                                                        .watch<
-                                                            SettingProvider>()
-                                                        .isGiam
-                                                    ? Icon(
-                                                        Icons.arrow_downward,
-                                                        color: context
-                                                                .watch<
-                                                                    SettingProvider>()
-                                                                .isDark
-                                                            ? Colors.white
-                                                            : Colors.black,
-                                                      )
-                                                    : Icon(
-                                                        Icons.arrow_upward,
-                                                        color: context
-                                                                .watch<
-                                                                    SettingProvider>()
-                                                                .isDark
-                                                            ? Colors.white
-                                                            : Colors.black,
-                                                      ),
-                                                onPressed: () {
-                                                  context
-                                                      .read<SettingProvider>()
-                                                      .setSort();
-                                                })
-                                          ],
-                                        )
                                       ],
                                     )
                                   : SizedBox(height: 0),
@@ -148,24 +158,14 @@ class Home extends StatelessWidget {
                                             .length,
                                         itemBuilder: (context, index) {
                                           final task =
-                                              taskprovider.GetListTask();
-                                          if (context
-                                              .watch<SettingProvider>()
-                                              .isGiam) {
-                                            task.sort((a, b) =>
-                                                b.uuTien.compareTo(a.uuTien));
-                                          } else {
-                                            task.sort((a, b) =>
-                                                a.uuTien.compareTo(b.uuTien));
-                                          }
+                                              taskprovider.getListTaskOverDue();
 
                                           return Card(
                                             child: ListTile(
                                               leading: Checkbox(
                                                 checkColor: Colors.blue,
                                                 activeColor: Colors.white,
-                                                value: context
-                                                    .watch<TaskProvider>()
+                                                value: taskprovider
                                                     .getStatusFromMap(
                                                         task[index].id),
                                                 onChanged: (bool? value) {
@@ -249,38 +249,6 @@ class Home extends StatelessWidget {
                                         fontWeight: FontWeight.bold),
                                   ),
                                   SizedBox(width: 16.0),
-                                  Row(
-                                    children: [
-                                      
-                                      IconButton(
-                                          icon: context
-                                                  .watch<SettingProvider>()
-                                                  .isGiam
-                                              ? Icon(
-                                                  Icons.arrow_downward,
-                                                  color: context
-                                                          .watch<
-                                                              SettingProvider>()
-                                                          .isDark
-                                                      ? Colors.white
-                                                      : Colors.black,
-                                                )
-                                              : Icon(
-                                                  Icons.arrow_upward,
-                                                  color: context
-                                                          .watch<
-                                                              SettingProvider>()
-                                                          .isDark
-                                                      ? Colors.white
-                                                      : Colors.black,
-                                                ),
-                                          onPressed: () {
-                                            context
-                                                .read<SettingProvider>()
-                                                .setSort();
-                                          })
-                                    ],
-                                  )
                                 ],
                               ),
                               SizedBox(height: 16.0),
@@ -302,9 +270,8 @@ class Home extends StatelessWidget {
                                             leading: Checkbox(
                                               checkColor: Colors.blue,
                                               activeColor: Colors.white,
-                                              value: context
-                                                  .watch<TaskProvider>()
-                                                  .getStatusFromMap(
+                                              value:
+                                                  taskprovider.getStatusFromMap(
                                                       task[index].id),
                                               onChanged: (bool? value) {
                                                 taskprovider.SetStatus(

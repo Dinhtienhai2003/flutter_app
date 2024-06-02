@@ -10,6 +10,41 @@ class DetailTask extends StatelessWidget {
   final Task? _task;
   const DetailTask(this._task, {super.key});
 
+  Future<void> _showDeleteConfirmation(
+      BuildContext context, Function deleteFunction) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Xác nhận'),
+          content: Text('Bạn có muốn xóa không?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Hủy'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Xóa'),
+              onPressed: () {
+                deleteFunction();
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Xóa thành công!'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _showConfirmation(
       BuildContext context, Function deleteFunction) async {
     return showDialog<void>(
@@ -92,9 +127,10 @@ class DetailTask extends StatelessWidget {
                     IconButton(
                       icon: Icon(Icons.delete),
                       onPressed: () {
-                        context.read<TaskProvider>().DeleteTask(_task!.id);
-
-                        Navigator.pop(context);
+                        _showDeleteConfirmation(context, () {
+                          context.read<TaskProvider>().DeleteTask(_task!.id);
+                          Navigator.of(context).pop();
+                        });
                       },
                     ),
                   ],

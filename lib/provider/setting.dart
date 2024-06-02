@@ -30,8 +30,17 @@ class SettingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setSort() {
-    _isGiam = !_isGiam;
+  void sortUp() {
+    _isGiam = false;
+
+    localSetting.setData(null, _isGiam);
+    print("set _isGiam : ${_isGiam}");
+
+    notifyListeners();
+  }
+
+  void sortDown() {
+    _isGiam = true;
 
     localSetting.setData(null, _isGiam);
     print("set _isGiam : ${_isGiam}");
