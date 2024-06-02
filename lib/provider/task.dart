@@ -76,8 +76,11 @@ class TaskProvider extends ChangeNotifier {
           continue;
         } else {
           listIdTaskOverDue.add(task.id);
-          SetIsShow(task.id);
+          SetIsShowFalse(task.id);
         }
+      } else if (task.end != null && task.end!.isAfter(now)) {
+        listIdTaskOverDue.remove(task.id);
+        SetIsShowTrue(task.id);
       }
     }
 
@@ -100,10 +103,19 @@ class TaskProvider extends ChangeNotifier {
         .asBroadcastStream();
   }
 
-  void SetIsShow(String id) {
+  void SetIsShowFalse(String id) {
     for (Task task in listTask) {
       if (task.id == id) {
         task.isShow = false;
+      }
+      notifyListeners();
+    }
+  }
+
+  void SetIsShowTrue(String id) {
+    for (Task task in listTask) {
+      if (task.id == id) {
+        task.isShow = true;
       }
       notifyListeners();
     }
