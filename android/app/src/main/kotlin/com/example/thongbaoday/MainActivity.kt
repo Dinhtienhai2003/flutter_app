@@ -1,4 +1,4 @@
-package com.example.ontap_sharedprefences
+package com.example.thongbaoday
 
 import io.flutter.embedding.android.FlutterActivity
 
