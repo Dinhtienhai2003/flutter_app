@@ -53,7 +53,7 @@ class Home extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.blue,
         title: Text(
-          "Todo app",
+          "Todudu",
           style: TextStyle(color: Colors.white),
         ),
         actions: [

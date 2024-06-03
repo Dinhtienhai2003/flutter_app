@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "995252850202",
+    "project_id": "glassy-storm-423606-h7",
+    "storage_bucket": "glassy-storm-423606-h7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:995252850202:android:7947acf391fe6798218ba3",
+        "android_client_info": {
+          "package_name": "com.example.firebase_push_notification"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA49wiGKvVAK1gNWtlmj0FX2P2FEmPwctA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:995252850202:android:d44f93a3688c6705218ba3",
+        "android_client_info": {
+          "package_name": "com.example.ontap_sharedprefences"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA49wiGKvVAK1gNWtlmj0FX2P2FEmPwctA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:995252850202:android:dfb2c6a29443b5e7218ba3",
+        "android_client_info": {
+          "package_name": "com.example.thongbaoday"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA49wiGKvVAK1gNWtlmj0FX2P2FEmPwctA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
