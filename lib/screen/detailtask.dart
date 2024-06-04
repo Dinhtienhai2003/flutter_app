@@ -119,7 +119,15 @@ class DetailTask extends StatelessWidget {
                           isScrollControlled: true,
                           context: context,
                           builder: (BuildContext context) {
-                            return SingleChildScrollView(child: Edit(_task, 1));
+                            return SingleChildScrollView(
+                              child: Container(
+                                child: Edit(_task, 1),
+                                padding: EdgeInsets.only(
+                                  bottom:
+                                      MediaQuery.of(context).viewInsets.bottom,
+                                ),
+                              ),
+                            );
                           },
                         );
                       },
