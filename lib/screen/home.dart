@@ -183,10 +183,16 @@ class Home extends StatelessWidget {
                                                             task[index].uuTien <
                                                                 6
                                                         ? Colors.orange
-                                                        : snapshot.data! == true
+                                                        : taskprovider.getStatusFromMap(
+                                                                    task[index]
+                                                                        .id) ==
+                                                                true
                                                             ? Colors.grey
                                                             : null,
-                                                decoration: snapshot.data! ==
+                                                decoration: taskprovider
+                                                            .getStatusFromMap(
+                                                                task[index]
+                                                                    .id) ==
                                                         true
                                                     ? TextDecoration.lineThrough
                                                     : null,
@@ -199,7 +205,11 @@ class Home extends StatelessWidget {
                                                         true
                                                     ? TextDecoration.lineThrough
                                                     : null,
-                                                color: snapshot.data! == true
+                                                color: taskprovider
+                                                            .getStatusFromMap(
+                                                                task[index]
+                                                                    .id) ==
+                                                        true
                                                     ? Colors.grey
                                                     : null,
                                               ),
@@ -280,10 +290,16 @@ class Home extends StatelessWidget {
                                                   : task[index].uuTien > 2 &&
                                                           task[index].uuTien < 6
                                                       ? Colors.orange
-                                                      : snapshot.data! == true
+                                                      : taskprovider.getStatusFromMap(
+                                                                  task[index]
+                                                                      .id) ==
+                                                              true
                                                           ? Colors.grey
                                                           : null,
-                                              decoration: snapshot.data! == true
+                                              decoration: taskprovider
+                                                          .getStatusFromMap(
+                                                              task[index].id) ==
+                                                      true
                                                   ? TextDecoration.lineThrough
                                                   : null,
                                             ),
@@ -291,12 +307,18 @@ class Home extends StatelessWidget {
                                           subtitle: Text(
                                             "Nội dung: " + task[index].ghiChu,
                                             style: TextStyle(
-                                              decoration: snapshot.data! == true
+                                              decoration: taskprovider
+                                                          .getStatusFromMap(
+                                                              task[index].id) ==
+                                                      true
                                                   ? TextDecoration.lineThrough
                                                   : null,
-                                              color: snapshot.data! == true
-                                                  ? Colors.grey
-                                                  : null,
+                                              color:
+                                                  taskprovider.getStatusFromMap(
+                                                              task[index].id) ==
+                                                          true
+                                                      ? Colors.grey
+                                                      : null,
                                             ),
                                           ),
                                           trailing: IconButton(

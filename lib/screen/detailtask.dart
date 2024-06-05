@@ -121,7 +121,7 @@ class DetailTask extends StatelessWidget {
                           builder: (BuildContext context) {
                             return SingleChildScrollView(
                               child: Container(
-                                child: Edit(_task, 1),
+                                child: Edit(_task, 0),
                                 padding: EdgeInsets.only(
                                   bottom:
                                       MediaQuery.of(context).viewInsets.bottom,
