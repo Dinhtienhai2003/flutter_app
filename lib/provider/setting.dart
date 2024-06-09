@@ -6,12 +6,9 @@ class SettingProvider extends ChangeNotifier {
   final localSetting = LocalSetting();
   bool _isDark = false;
 
-  bool _isGiam = false;
-
   SettingProvider() {
     localSetting.getData().then((value) {
-      _isDark = value["isDark"] ?? false;
-      _isGiam = value["isGiam"] ?? false;
+      _isDark = value;
       print("gia tri _isDark : ${_isDark}");
       notifyListeners();
     });
@@ -19,31 +16,11 @@ class SettingProvider extends ChangeNotifier {
 
   get isDark => _isDark;
 
-  get isGiam => _isGiam;
-
   void setBrightness(bool value) {
     _isDark = value;
 
-    localSetting.setData(_isDark, null);
+    localSetting.setData(_isDark);
     print("set _isDark : ${_isDark}");
-
-    notifyListeners();
-  }
-
-  void sortUp() {
-    _isGiam = false;
-
-    localSetting.setData(null, _isGiam);
-    print("set _isGiam : ${_isGiam}");
-
-    notifyListeners();
-  }
-
-  void sortDown() {
-    _isGiam = true;
-
-    localSetting.setData(null, _isGiam);
-    print("set _isGiam : ${_isGiam}");
 
     notifyListeners();
   }

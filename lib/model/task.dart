@@ -2,17 +2,17 @@
 import 'dart:convert';
 
 class Task {
-  static int count = 0;
+  static int count = 1;
   String id = count.toString();
   int uuTien;
   String ghiChu;
   DateTime? begin = DateTime.now();
-  DateTime? end;
+  DateTime? end = null;
 
   //0 : đang chờ đợi
   //1: đã hoàn thành
   //2: trễ hạn
-  bool? status;
+  bool? status = false;
   dynamic? imgHoanThanh;
   bool? isShow = true;
   Task({

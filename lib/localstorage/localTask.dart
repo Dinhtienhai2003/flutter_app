@@ -8,26 +8,28 @@ class LocalstorageTask {
 
   get getTasks => tasks;
 
+  void setTasks(List<Task> tmp) {
+    tasks = tmp;
+  }
+
   Future<List<Task>> getData() async {
     final SharedPreferences prefs = await _prefs;
     final List<String>? tasksJson = prefs.getStringList('tasks');
-    print("du lieu lay tu getdatalocal json : ${tasksJson}");
-
-    if (tasksJson != null) {
-      List<Task>? tasksTmp = [];
-      return tasksJson.map((json) => Task.fromMap(jsonDecode(json))).toList();
+    if (tasksJson != null && tasksJson.isNotEmpty) {
+      tasks = tasksJson
+          .map((taskJson) => Task.fromMap(jsonDecode(taskJson)))
+          .toList();
     } else {
-      return [];
+      tasks = [];
     }
+    return tasks;
   }
 
-  Future<void> setData(List<Task> tmp) async {
+  Future<void> setData() async {
     List<String> tasksJson =
-        tmp.map((task) => jsonEncode(task.toMap())).toList();
+        tasks.map((task) => jsonEncode(task.toMap())).toList();
 
     final SharedPreferences prefs = await _prefs;
     prefs.setStringList('tasks', tasksJson);
-
-    print("list string vua set : ${tasksJson}");
   }
 }
